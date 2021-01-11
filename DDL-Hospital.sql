@@ -20,9 +20,12 @@ create table paciente (paciente_id smallint unsigned not null auto_increment,
 nome_completo varchar(255) not null,
 documento char(11) not null,
 data_nascimento date not null,
-sexo varchar(50) not null,
-tipo_sanguineo varchar(50) not null,
+sexo varchar(50) not null,  -- melhor tipo enum
+tipo_sanguineo varchar(50) not null, -- melhor tipo enum
 primary key(paciente_id));
+
+alter table paciente MODIFY COLUMN sexo enum ('masculino', 'feminino');
+alter table paciente MODIFY COLUMN tipo_sanguineo enum ('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-');
 
 create table medicamento (medicamento_id smallint unsigned not null auto_increment,
 nome varchar(255) not null,
@@ -53,7 +56,7 @@ foreign key(setor_id) references setor(setor_id) on delete restrict);
 
 create table prontuario (prontuario_id smallint unsigned not null auto_increment,
 paciente_id smallint unsigned not null,
-data_atualizacao date not null,
+data_atualizacao date not null,  -- melhor tipo date time
 primary key(prontuario_id),
 key prontuario_paciente(prontuario_id, paciente_id),
 foreign key(paciente_id) references paciente(paciente_id) on delete restrict);
@@ -87,11 +90,3 @@ primary key(id),
 key medicamento_receita(id, receita_id),
 foreign key(receita_id) references receita(receita_id) on delete restrict,
 foreign key(medicamento_id) references medicamento(medicamento_id) on delete restrict);
-
-
-
-
-
-
-
-

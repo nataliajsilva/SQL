@@ -32,24 +32,32 @@ delete from avaliacoes_aplicadas where id = 130;
 -- exercicios
 
 -- 1- Crie uma consulta que retorne os melhores alunos por média de nota de cada disciplina.
- select max(media2), disciplina from (
- select aluno,disciplina, max(media) as media2 from (
- select avg(a.nota) as media, b.nome_completo as aluno, c.nome as disciplina
- from avaliacoes_aplicadas as a
- inner join aluno as b on a.aluno_id = b.aluno_id
- inner join disciplina as c on a.disciplina_id = c.disciplina_id
- group by a.disciplina_id,a.aluno_id) media_alunos
- group by aluno,disciplina) media_alunos2
- group by disciplina;
+ 
+ SELECT max_nota_media, nome_disciplina, nome_completo_aluno, notas_medias_disciplina_id FROM (
+	SELECT MAX(nota_media) AS max_nota_media, notas_medias.disciplina_id AS notas_medias_disciplina_id, disciplina.nome as nome_disciplina
+	FROM (
+		SELECT AVG(nota) as nota_media, aluno_id, disciplina_id
+		FROM avaliacoes_aplicadas 
+		GROUP BY aluno_id, disciplina_id
+	) AS notas_medias
+	INNER JOIN disciplina ON disciplina.disciplina_id = notas_medias.disciplina_id
+	GROUP BY notas_medias.disciplina_id, disciplina.nome) AS max_notas_medias
+INNER JOIN (
+		SELECT AVG(nota) as nota_media, avaliacoes_aplicadas.aluno_id, avaliacoes_aplicadas.disciplina_id, aluno.nome_completo as nome_completo_aluno
+		FROM avaliacoes_aplicadas
+        INNER JOIN aluno ON aluno.aluno_id = avaliacoes_aplicadas.aluno_id
+		GROUP BY aluno_id, disciplina_id) AS join_avg_nota 
+        ON join_avg_nota.nota_media = max_nota_media AND join_avg_nota.disciplina_id = notas_medias_disciplina_id
+ORDER BY nome_disciplina, max_nota_media DESC;
 
 -- 2- Crie uma consulta que retorne todas as turmas cadastradas separadas por disciplina e o nome do professor.
 
-select b.nome as turma,
-b.grau_ensino,
-c.nome as disciplina,
-d.nome_completo as professor
-from grade_aulas_professores as a
-inner join turma as b on a.turma_id = b.turma_id
-inner join disciplina as c on a.disciplina_id = c.disciplina_id
-inner join professor as d on a.professor_id = d.professor_id
-group by a.turma_id,c.nome,d.nome_completo;
+select turma.nome as turma,
+turma.grau_ensino,
+disciplina.nome as disciplina,
+professor.nome_completo as professor
+from grade_aulas_professores as aulas 
+inner join turma as turma on aulas.turma_id = turma.turma_id
+inner join disciplina as disciplina on aulas.disciplina_id = disciplina.disciplina_id
+inner join professor as professor on aulas.professor_id = professor.professor_id
+group by aulas.turma_id, disciplina.nome, professor.nome_completo;
